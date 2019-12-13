@@ -4,12 +4,18 @@ defmodule Day1 do
   """
 
   @doc """
-  Hello world.
+  Help Santa.
 
   ## Examples
 
-      iex> Day1.hello()
-      :world
+      iex> Day1.calculateFuel(14,0)
+      2
+
+      iex> Day1.calculateFuel(1969,0)
+      966
+
+      iex> Day1.calculateFuel(100756,0)
+      50346
 
   """
   def helpSanta do
@@ -33,7 +39,7 @@ defmodule Day1 do
       |> Integer.floor_div(3)
       |> Kernel.-(2)
       |> max(0)
-    IO.inspect(fuel)
+    #IO.inspect(fuel)
     calculateFuel(fuel, fuel+total)
   end
 end
