@@ -59,28 +59,47 @@ defmodule Day2 do
       2
 
   """
-  def intcode do
+  def part2 do
+    noun = 0..99
+    verb = 0..99
+    noun
+    |> Enum.each(fn n ->
+      verb
+      |> Enum.each(fn v->
+        #IO.puts("Spawning process for #{n}/#{v}")
+        spawn(Day2, :intcode, [n,v])
+      end)
+    end)
+
+  end
+
+  def part1 do
+    intcode(12,2)
+  end
+
+  def intcode(noun, verb) do
     opCodes =
       (File.cwd!() <> "/input.txt")
       |> File.read!()
       |> String.replace("\n", "")
-      |> IO.inspect()
       |> String.split(",")
       |> Enum.filter(fn s -> String.length(s) > 0 end)
-      # |> Enum.take(1)
       |> Enum.map(fn s -> String.to_integer(s) end)
-      |> IO.inspect()
-      |> Apex.ap
 
-    opCodes = List.replace_at(opCodes,1,12)
-    opCodes = List.replace_at(opCodes,2,2)
+    opCodes = List.replace_at(opCodes,1,noun)
+    opCodes = List.replace_at(opCodes,2,verb)
 
-    processCode(opCodes, 0)
+    ans = processCode(opCodes, 0)
+
+    #IO.puts("With noun #{noun} and verb #{verb} answer is #{ans}")
+    if(ans == 19690720) do
+      IO.puts("#{noun} and #{verb} make 19690720!  #{noun*100+verb}")
+    end
   end
 
   def processCode(opCodes, offset) do
-    Enum.slice(opCodes,offset,4) |> IO.inspect
-    IO.puts("Processing opCodes starting at #{offset}")
+    #Enum.slice(opCodes,offset,4) |> IO.inspect
+    #IO.puts("Processing opCodes starting at #{offset}")
     opCode = Enum.fetch!(opCodes, offset)
 
     case opCode do
@@ -97,10 +116,10 @@ defmodule Day2 do
     num1 = Enum.fetch!(opCodes, num1Offset)
     num2 = Enum.fetch!(opCodes, num2Offset)
 
-    IO.inspect(opCodes)
-    IO.puts("Adding #{num1} and #{num2} into position #{destOffset}")
+    #IO.inspect(opCodes)
+    #IO.puts("Adding #{num1} and #{num2} into position #{destOffset}")
     opCodes = List.replace_at(opCodes, destOffset, num1 + num2)
-    IO.inspect(opCodes)
+    #IO.inspect(opCodes)
 
     processCode(opCodes, offset + 4)
   end
@@ -112,10 +131,10 @@ defmodule Day2 do
     num1 = Enum.fetch!(opCodes, num1Offset)
     num2 = Enum.fetch!(opCodes, num2Offset)
 
-    IO.inspect(opCodes)
-    IO.puts("Multiplying #{num1} and #{num2} into position #{destOffset}")
+    #IO.inspect(opCodes)
+    #IO.puts("Multiplying #{num1} and #{num2} into position #{destOffset}")
     opCodes = List.replace_at(opCodes, destOffset, num1 * num2)
-    IO.inspect(opCodes)
+    #IO.inspect(opCodes)
 
     processCode(opCodes, offset + 4)
   end
