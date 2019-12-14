@@ -72,6 +72,9 @@ defmodule Day2 do
       |> IO.inspect()
       |> Apex.ap
 
+    opCodes = List.replace_at(opCodes,1,12)
+    opCodes = List.replace_at(opCodes,2,2)
+
     processCode(opCodes, 0)
   end
 
