@@ -49,6 +49,7 @@ defmodule Day4 do
   end
 
   def do_counter(supervisor, numWorked) do
+    IO.puts("do_counter called, current count is #{numWorked}!")
     receive do
       {:worked} -> do_counter(supervisor, numWorked+1)
       {:howMany} -> send(supervisor, {:howMany, numWorked})
@@ -63,31 +64,50 @@ defmodule Day4 do
   end
 
   def isValid(number) do
-    number
+    {:ok,number}
     |> isSixDigits
     |> twoAdjacentDigitsAreTheSame
     |> digitsNeverDecrease
+    |> case do
+      {:ok, _number} -> true
+      _ -> false
+    end
   end
 
-  def isSixDigits(number) do
-    to_string(number)
-    |> String.length == 6
+  def isSixDigits({:ok, number}) do
+    length = to_string(number)
+    |> String.length
+    case length do
+      6 -> {:ok, number}
+      _ -> {:error, number}
+    end
   end
+  def isSixDigits({:error,opts}), do: {:error, opts}
 
-  def twoAdjacentDigitsAreTheSame(number) do
+  def twoAdjacentDigitsAreTheSame({:ok,number}) do
     str = to_string(number)
     str
       |> String.graphemes
       |> Enum.map(fn char -> String.contains?(str, char<>char) end)
       |> Enum.any?(fn item -> item == true end)
+      |> case do
+        true -> {:ok, number}
+        _ -> {:error, number}
+      end
   end
+  def twoAdjacentDigitsAreTheSame({:error,number}), do: {:error, number}
 
-  def digitsNeverDecrease(number) do
+  def digitsNeverDecrease({:ok,number}) do
     number
     |> to_string
     |> String.graphemes
-    |> Enum.chunk_every(2,2,:discard)
+    |> Enum.chunk_every(2,1,:discard)
     |> Enum.map(fn [x,y] -> x <= y end)
     |> Enum.all?(fn item -> item == true end)
+    |> case do
+      true -> {:ok, number}
+      _ -> {:error, number}
+    end
   end
+  def digitsNeverDecrease({:error,number}), do: {:error,number}
 end
