@@ -88,7 +88,9 @@ defmodule Day4 do
     str = to_string(number)
     str
       |> String.graphemes
-      |> Enum.map(fn char -> String.contains?(str, char<>char) end)
+      |> Enum.map(fn char ->
+        String.contains?(str, char<>char) && !String.contains?(str, char<>char<>char)
+      end)
       |> Enum.any?(fn item -> item == true end)
       |> case do
         true -> {:ok, number}
