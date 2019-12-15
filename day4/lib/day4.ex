@@ -9,7 +9,7 @@ defmodule Day4 do
       spawn try [number, counterPid]
 
     receive do
-      {:howmany, count} -> IO.puts("There are #{count} many working possibilities")
+      {:howmany, count} -> IO.puts("There are {count} many working possibilities")
   end
 
   def do_counter(supervisor, numWorked) do
@@ -36,7 +36,58 @@ defmodule Day4 do
       :world
 
   """
-  def hello do
-    :world
+  def runner(start,stop) do
+    counterPid = spawn(Day4, :do_counter, [self(), 0])
+
+    start..stop
+    |> Enum.each(fn num -> spawn(Day4, :try, [num, counterPid]) end)
+
+    receive do
+      {:howMany, count} -> IO.puts("There are #{count} numbers that fit the rules")
+      _ -> IO.puts("What sort of weird message was that?!")
+    end
+  end
+
+  def do_counter(supervisor, numWorked) do
+    receive do
+      {:worked} -> do_counter(supervisor, numWorked+1)
+      {:howMany} -> send(supervisor, {:howMany, numWorked})
+    end
+    do_counter(supervisor, numWorked)
+  end
+
+  def try(number, counterPid) do
+    if(isValid(number)) do
+      send(counterPid, {:worked})
+    end
+  end
+
+  def isValid(number) do
+    number
+    |> isSixDigits
+    |> twoAdjacentDigitsAreTheSame
+    |> digitsNeverDecrease
+  end
+
+  def isSixDigits(number) do
+    to_string(number)
+    |> String.length == 6
+  end
+
+  def twoAdjacentDigitsAreTheSame(number) do
+    str = to_string(number)
+    str
+      |> String.graphemes
+      |> Enum.map(fn char -> String.contains?(str, char<>char) end)
+      |> Enum.any?(fn item -> item == true end)
+  end
+
+  def digitsNeverDecrease(number) do
+    number
+    |> to_string
+    |> String.graphemes
+    |> Enum.chunk_every(2,2,:discard)
+    |> Enum.map(fn [x,y] -> x <= y end)
+    |> Enum.all?(fn item -> item == true end)
   end
 end
