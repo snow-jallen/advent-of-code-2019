@@ -20,7 +20,7 @@ defmodule Day3 do
       iex> Day3.comparePaths("R8,U5,L5,D3","U7,R6,D4,L4")
       30
 
-      Day3.comparePaths("R75,D30,R83,U83,L12,D49,R71,U7,L72","U62,R66,U55,R34,D71,R55,D58,R83")
+      iex> Day3.comparePaths("R75,D30,R83,U83,L12,D49,R71,U7,L72","U62,R66,U55,R34,D71,R55,D58,R83")
       610
 
   """
