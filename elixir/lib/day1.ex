@@ -19,7 +19,7 @@ defmodule Day1 do
 
   """
   def helpSanta do
-    File.cwd! <> "/input.txt"
+    File.cwd! <> "/day1input.txt"
     |> File.read!
     |> String.split("\n")
     |> Enum.filter(fn(s)-> String.length(s) > 0 end)

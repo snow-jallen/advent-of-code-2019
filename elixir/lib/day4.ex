@@ -27,15 +27,6 @@ defmodule Day4 do
   end
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Day4.hello()
-      :world
-
-  """
   def runner(start,stop) do
     counterPid = spawn(Day4, :do_counter, [self(), 0])
 
