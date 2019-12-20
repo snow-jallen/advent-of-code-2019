@@ -116,7 +116,7 @@ defmodule Day5 do
     # opCodes = List.replace_at(opCodes, 1, noun)
     # opCodes = List.replace_at(opCodes, 2, verb)
 
-    ans = do_instruction(opCodes, 0)
+    ans = start_instruction(opCodes, 0)
 
     if(ans == 19690720) do
       IO.puts("#{noun} and #{verb} make 19690720!  #{noun * 100 + verb}")
@@ -125,39 +125,57 @@ defmodule Day5 do
     ans
   end
 
-  def do_instruction(codes, offset) when length(codes) > offset do
+  def start_instruction(codes, offset) when length(codes) > offset do
+    codes
+    |> Enum.drop(offset)
+    |> Enum.take(12)
+    # |> IO.inspect(label: "Next 12, starting @ #{offset}")
+
     info = parse_instruction_info(codes, offset)
 
-    do_instruction(codes, offset, info)
-    |> do_instruction(offset + info[:next_offset])
+    codes
+    |> do_instruction(offset, info)
+    |> start_instruction(info[:next_offset])
   end
 
-  def do_instruction(codes, _offset) do
+  def start_instruction(codes, _offset) do
     IO.puts("Nothing left to do...")
     Enum.fetch!(codes, 0)
   end
 
   def do_instruction(codes, _offset, info = %{:opcode => 1}) do
+    # IO.puts("opcode 1 (addition): #{info[:val1]} + #{info[:val2]} into position #{info[:dest]}")
     codes
     |> List.replace_at(info[:dest], info[:val1] + info[:val2])
   end
 
   def do_instruction(codes, _offset, info = %{:opcode => 2}) do
+    # IO.puts("opcode 2 (multiplication): #{info[:val1]} * #{info[:val2]} into position #{info[:dest]}")
     codes
     |> List.replace_at(info[:dest], info[:val1] * info[:val2])
   end
 
   def do_instruction(codes, offset, _info = %{:opcode => 3}) do
     val = Enum.fetch!(codes, offset + 1)
+    newVal =
+      IO.gets("opcode 3: Please enter a number for me to put into position #{val}\n")
+      |> String.trim()
+      |> String.to_integer()
 
     codes
-    |> List.replace_at(val, val)
+    |> List.replace_at(val, newVal)
   end
 
   def do_instruction(codes, offset, _info = %{:opcode => 4}) do
     dest = Enum.fetch!(codes, offset + 1)
     val = Enum.fetch!(codes, dest)
-    IO.puts("opcode 4: @ position #{dest};  val=#{val}")
+    IO.puts("opcode 4: output @ position #{dest};  val=#{val}")
+    codes
+  end
+
+  def do_instruction(codes, _offset, _info = %{:opcode => 99}) do
+    IO.puts("opcode 99 - all done!")
+    codes
   end
 
   def parse_instruction_info(codes, offset) do
@@ -167,9 +185,9 @@ defmodule Day5 do
       %{}
       |> Map.put(:instruction, instruction)
       |> Map.put(:opcode, rem(instruction, 100))
-      |> IO.inspect()
 
     parse_instruction_info(codes, offset, info)
+    # |> IO.inspect
   end
 
   def parse_instruction_info(codes, offset, info = %{:opcode => opcode})
@@ -191,11 +209,12 @@ defmodule Day5 do
     |> Map.put(:param1Mode, param1Mode)
     |> Map.put(:param2Mode, param2Mode)
     |> Map.put(:param3Mode, param3Mode)
+    |> Map.put(:param1Offset, offset + 1)
+    |> Map.put(:param2Offset, offset + 2)
     |> Map.put(:val1, val1)
     |> Map.put(:val2, val2)
     |> Map.put(:dest, Enum.fetch!(codes, offset + 3))
     |> Map.put(:next_offset, offset + 4)
-    |> IO.inspect()
   end
 
   def parse_instruction_info(_codes, offset, info = %{:opcode => opcode})
@@ -204,14 +223,21 @@ defmodule Day5 do
     |> Map.put(:next_offset, offset + 2)
   end
 
+  def parse_instruction_info(_codes, _offset, info = %{:opcode => opcode})
+      when opcode == 99 do
+    info
+  end
+
   def get_value(codes, offset, _paramMode = 0) do
     arg = Enum.fetch!(codes, offset)
+    # IO.puts("get_value codes[#{offset}] = #{arg}; codes[#{arg}] = #{Enum.fetch!(codes, arg)}")
 
     codes
     |> Enum.fetch!(arg)
   end
 
   def get_value(codes, offset, _paramMode = 1) do
+    # IO.puts("get_value codes[#{offset}] = #{Enum.fetch!(codes, offset)}")
     Enum.fetch!(codes, offset)
   end
 end
